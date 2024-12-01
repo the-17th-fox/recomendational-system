@@ -1,0 +1,6 @@
+@BillDivider_HostAddress = http://localhost:5204
+
+GET {{BillDivider_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
