@@ -1,10 +1,12 @@
-name: CI Pipeline
+name: BE-CI Pipeline
 
 on:
   pull_request:
     branches:
       - main
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, edited]
+    paths:
+      - 'backend/**'
   workflow_call:
 
 jobs:
@@ -23,7 +25,7 @@ jobs:
       - name: Find .sln files
         id: find-solution
         run: |
-          echo "solutions=(find src -path 'src/*/[^/]*.sln' -print0 | xargs -0 echo)" >> "$GITHUB_OUTPUT"
+          echo "solutions=(find src -path 'backend/*.sln' -print0 | xargs -0 echo)" >> "$GITHUB_OUTPUT"
           
       - name: Restore Solutions
         run: |
