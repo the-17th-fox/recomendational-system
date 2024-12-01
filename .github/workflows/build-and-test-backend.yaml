@@ -29,21 +29,21 @@ jobs:
           
       - name: Restore Solutions
         run: |
-          for solution in ${{ steps.find-solutions.outputs.solutions }}; do
+          for solution in "${{ steps.find-solutions.outputs.solutions }}"; do
             echo "Restoring solution: $solution"
             dotnet restore "$solution"
           done
             
       - name: Build Solutions
         run: |
-          for solution in ${{ steps.find-solutions.outputs.solutions }}; do
+          for solution in "${{ steps.find-solutions.outputs.solutions }}"; do
             echo "Building solution: $solution"
             dotnet build "$solution" --configuration Release
           done
             
       - name: Test Solutions
         run: |
-          for solution in ${{ steps.find-solutions.outputs.solutions }}; do
+          for solution in "${{ steps.find-solutions.outputs.solutions }}"; do
             echo "Testing solution: $solution"
             dotnet test "$solution" --configuration Release
           done
