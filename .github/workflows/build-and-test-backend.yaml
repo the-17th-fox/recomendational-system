@@ -25,7 +25,7 @@ jobs:
       - name: Find .sln files
         id: find-solutions
         run: |
-          echo "solutions=(find src -path 'backend/*.sln' -print0 | xargs -0 echo)" >> "$GITHUB_OUTPUT"
+          echo "solutions=(find . -path 'backend/*.sln' -print0 | xargs -0 echo)" >> "$GITHUB_OUTPUT"
           
       - name: Restore Solutions
         run: |
