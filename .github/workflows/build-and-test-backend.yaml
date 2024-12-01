@@ -23,7 +23,7 @@ jobs:
           dotnet-version: 6.0.x
 
       - name: Find .sln files
-        id: find-solution
+        id: find-solutions
         run: |
           echo "solutions=(find src -path 'backend/*.sln' -print0 | xargs -0 echo)" >> "$GITHUB_OUTPUT"
           
