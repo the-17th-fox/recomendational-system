@@ -29,13 +29,6 @@ jobs:
           echo "Found solution files:"
           echo "$solutions"
           echo "solutions=$solutions" >> $GITHUB_ENV
-          
-      - name: Restore Solutions
-        run: |
-          for solution in "${{ steps.find-solutions.outputs.solutions }}"; do
-            echo "Restoring solution: $solution"
-            dotnet restore "$solution"
-          done
             
       - name: Build all solutions
         run: |
