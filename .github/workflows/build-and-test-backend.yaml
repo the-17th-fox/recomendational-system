@@ -20,30 +20,30 @@ jobs:
       - name: Setup .NET Core SDK
         uses: actions/setup-dotnet@v1
         with:
-          dotnet-version: 6.0.x
+          dotnet-version: 9.0.x
 
       - name: Find .sln files
-        id: find-solution
+        id: find-solutions
         run: |
-          echo "solutions=(find src -path 'backend/*.sln' -print0 | xargs -0 echo)" >> "$GITHUB_OUTPUT"
-          
-      - name: Restore Solutions
-        run: |
-          for solution in ${{ steps.find-solutions.outputs.solutions }}; do
-            echo "Restoring solution: $solution"
-            dotnet restore "$solution"
-          done
+          solutions=$(find ./backend -name "*.sln")
+          echo "Found solution files:"
+          echo "$solutions"
+          echo "solutions=$solutions" >> $GITHUB_ENV
             
-      - name: Build Solutions
+      - name: Build all solutions
         run: |
-          for solution in ${{ steps.find-solutions.outputs.solutions }}; do
-            echo "Building solution: $solution"
-            dotnet build "$solution" --configuration Release
+          for sln in $solutions; do
+            echo "Building solution: $sln"
+            dotnet build "$sln" --configuration Release
           done
-            
-      - name: Test Solutions
+        env:
+          solutions: ${{ env.solutions }}
+
+      - name: Test all solutions
         run: |
-          for solution in ${{ steps.find-solutions.outputs.solutions }}; do
-            echo "Testing solution: $solution"
-            dotnet test "$solution" --configuration Release
+          for sln in $solutions; do
+            echo "Testing solution: $sln"
+            dotnet test "$sln" --configuration Release
           done
+        env:
+          solutions: ${{ env.solutions }}
