@@ -10,6 +10,8 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDependencies(builder.Configuration);
 
+builder.Services.AddEndpointsApiExplorer();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

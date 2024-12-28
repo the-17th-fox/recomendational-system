@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BillDivider.Infrastructure.Migrations
 {
     [DbContext(typeof(BillDividerContext))]
-    [Migration("20241201175133_init")]
+    [Migration("20241228100749_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace BillDivider.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("BillDivider.Service.Entities.Bill", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.Bill", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,16 +43,13 @@ namespace BillDivider.Infrastructure.Migrations
                     b.ToTable("Bills");
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.BillItem", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.BillItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
 
                     b.Property<int>("BillId")
                         .HasColumnType("int");
@@ -66,6 +63,9 @@ namespace BillDivider.Infrastructure.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
+                    b.Property<double>("Quantity")
+                        .HasColumnType("float");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BillId");
@@ -75,7 +75,7 @@ namespace BillDivider.Infrastructure.Migrations
                     b.ToTable("BillItems");
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.Product", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -85,7 +85,8 @@ namespace BillDivider.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int?>("ProductTypeId")
                         .HasColumnType("int");
@@ -97,7 +98,7 @@ namespace BillDivider.Infrastructure.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.ProductType", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.ProductType", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -107,14 +108,15 @@ namespace BillDivider.Infrastructure.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
                     b.ToTable("ProductTypes");
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.User", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -180,6 +182,21 @@ namespace BillDivider.Infrastructure.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("BillUser", b =>
+                {
+                    b.Property<int>("DividedBillsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OtherMembersId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DividedBillsId", "OtherMembersId");
+
+                    b.HasIndex("OtherMembersId");
+
+                    b.ToTable("BillUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -315,26 +332,26 @@ namespace BillDivider.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.Bill", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.Bill", b =>
                 {
-                    b.HasOne("BillDivider.Service.Entities.User", "PayedBy")
-                        .WithMany("Bills")
+                    b.HasOne("BillDivider.Core.Entities.User", "PayedBy")
+                        .WithMany("PayedBills")
                         .HasForeignKey("PayedById")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("PayedBy");
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.BillItem", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.BillItem", b =>
                 {
-                    b.HasOne("BillDivider.Service.Entities.Bill", "Bill")
+                    b.HasOne("BillDivider.Core.Entities.Bill", "Bill")
                         .WithMany("BillItems")
                         .HasForeignKey("BillId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BillDivider.Service.Entities.Product", "Product")
+                    b.HasOne("BillDivider.Core.Entities.Product", "Product")
                         .WithMany("BillItems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -345,13 +362,28 @@ namespace BillDivider.Infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.Product", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.Product", b =>
                 {
-                    b.HasOne("BillDivider.Service.Entities.ProductType", "ProductType")
+                    b.HasOne("BillDivider.Core.Entities.ProductType", "ProductType")
                         .WithMany("Products")
                         .HasForeignKey("ProductTypeId");
 
                     b.Navigation("ProductType");
+                });
+
+            modelBuilder.Entity("BillUser", b =>
+                {
+                    b.HasOne("BillDivider.Core.Entities.Bill", null)
+                        .WithMany()
+                        .HasForeignKey("DividedBillsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("BillDivider.Core.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("OtherMembersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -365,7 +397,7 @@ namespace BillDivider.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("BillDivider.Service.Entities.User", null)
+                    b.HasOne("BillDivider.Core.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -374,7 +406,7 @@ namespace BillDivider.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("BillDivider.Service.Entities.User", null)
+                    b.HasOne("BillDivider.Core.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -389,7 +421,7 @@ namespace BillDivider.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BillDivider.Service.Entities.User", null)
+                    b.HasOne("BillDivider.Core.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -398,31 +430,31 @@ namespace BillDivider.Infrastructure.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("BillDivider.Service.Entities.User", null)
+                    b.HasOne("BillDivider.Core.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.Bill", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.Bill", b =>
                 {
                     b.Navigation("BillItems");
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.Product", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.Product", b =>
                 {
                     b.Navigation("BillItems");
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.ProductType", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.ProductType", b =>
                 {
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("BillDivider.Service.Entities.User", b =>
+            modelBuilder.Entity("BillDivider.Core.Entities.User", b =>
                 {
-                    b.Navigation("Bills");
+                    b.Navigation("PayedBills");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,12 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using BillDivider.Service.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+using BillDivider.Core.Entities;
 
 namespace BillDivider.Infrastructure.Context;
 
@@ -24,6 +20,13 @@ public class BillDividerContext : IdentityDbContext<User, IdentityRole<int>, int
         {
             Database.EnsureCreated();
         }
+    }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+
+        builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 
 }

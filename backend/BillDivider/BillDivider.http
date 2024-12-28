@@ -1,6 +1,6 @@
-@BillDivider_HostAddress = http://localhost:5204
+@BillDivider_HostAddress = http://localhost:44323
 
-GET {{BillDivider_HostAddress}}/weatherforecast/
+GET {{BillDivider_HostAddress}}/openapi/v1.json
 Accept: application/json
 
 ###

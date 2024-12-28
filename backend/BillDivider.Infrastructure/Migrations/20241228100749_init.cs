@@ -58,7 +58,7 @@ namespace BillDivider.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -186,8 +186,7 @@ namespace BillDivider.Infrastructure.Migrations
                         name: "FK_Bills_AspNetUsers_PayedById",
                         column: x => x.PayedById,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -196,7 +195,7 @@ namespace BillDivider.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     ProductTypeId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -210,6 +209,30 @@ namespace BillDivider.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BillUser",
+                columns: table => new
+                {
+                    DividedBillsId = table.Column<int>(type: "int", nullable: false),
+                    OtherMembersId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BillUser", x => new { x.DividedBillsId, x.OtherMembersId });
+                    table.ForeignKey(
+                        name: "FK_BillUser_AspNetUsers_OtherMembersId",
+                        column: x => x.OtherMembersId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BillUser_Bills_DividedBillsId",
+                        column: x => x.DividedBillsId,
+                        principalTable: "Bills",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BillItems",
                 columns: table => new
                 {
@@ -217,7 +240,7 @@ namespace BillDivider.Infrastructure.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Discount = table.Column<double>(type: "float", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
-                    Amount = table.Column<double>(type: "float", nullable: false),
+                    Quantity = table.Column<double>(type: "float", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     BillId = table.Column<int>(type: "int", nullable: false)
                 },
@@ -293,6 +316,11 @@ namespace BillDivider.Infrastructure.Migrations
                 column: "PayedById");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BillUser_OtherMembersId",
+                table: "BillUser",
+                column: "OtherMembersId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Products_ProductTypeId",
                 table: "Products",
                 column: "ProductTypeId");
@@ -320,19 +348,22 @@ namespace BillDivider.Infrastructure.Migrations
                 name: "BillItems");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "BillUser");
 
             migrationBuilder.DropTable(
-                name: "Bills");
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Bills");
 
             migrationBuilder.DropTable(
                 name: "ProductTypes");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
         }
     }
 }

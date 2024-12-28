@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BillDivider.Service\BillDivider.Service.csproj" />
+    <ProjectReference Include="..\BillDivider.Core\BillDivider.Core.csproj" />
   </ItemGroup>
 
 </Project>
